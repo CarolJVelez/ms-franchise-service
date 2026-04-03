@@ -47,4 +47,16 @@ public class ProductRest {
         return productHandler.updateStockProduct(productRequestUpdateDTO)
                 .map(dto -> ResponseEntity.status(HttpStatus.OK).body(dto));
     }
+
+    @Operation(summary = "Delete a product by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Product deleted successfully", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)
+    })
+    @DeleteMapping("/{productId}/branchId/{branchId}")
+    public Mono<ResponseEntity<Void>> deleteProduct(@PathVariable String productId,
+                                                    @PathVariable String branchId) {
+        return productHandler.deleteProduct(productId, branchId)
+                .then(Mono.just(ResponseEntity.noContent().build()));
+    }
 }
