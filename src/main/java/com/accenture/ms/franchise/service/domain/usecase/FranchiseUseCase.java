@@ -69,7 +69,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                 })
                 .doOnSuccess(saved ->
                         log.info("Sucursal '{}' creada con ID {}",
-                                saved.getBranchId(), saved.getFranchiseId())
+                                saved.getBranchName(), saved.getBranchId())
                 )
                 .doOnError(BusinessException.class, ex ->
                         log.warn("No se pudo crear la sucursal '{}': {}",
@@ -101,7 +101,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                 })
                 .doOnSuccess(saved ->
                         log.info("Producto '{}' creado con ID {}",
-                                saved.getBranchId(), saved.getProductId())
+                                saved.getProductName(), saved.getProductId())
                 )
                 .doOnError(BusinessException.class, ex ->
                         log.warn("No se pudo crear el producto '{}': {}",
@@ -132,8 +132,8 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                             .thenReturn(existingProduct);
                 })
                 .doOnSuccess(saved ->
-                        log.info("Producto '{}' actualizado con ID {}",
-                                saved.getBranchId(), saved.getProductId())
+                        log.info("Producto '{}' con ID {} actualizado",
+                                saved.getProductName(), saved.getProductId())
                 )
                 .doOnError(BusinessException.class, ex ->
                         log.warn("No se pudo actualizar el producto '{}': {}",
@@ -175,6 +175,24 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                 .doOnError(BusinessException.class, ex ->
                         log.warn("No se pudo obtener los productos de la franquicia '{}': {}",
                                 franchiseId, ex.getMessage())
+                );
+    }
+
+    @Override
+    public Mono<FranchiseModel> updateFranchise(FranchiseModel franchiseModel) {
+        return validator.validateFranchiseNameNotExists(franchiseModel.getFranchiseName())
+                .then(validator.validateAndGetFranchise(franchiseModel.getFranchiseId()))
+                .flatMap(existing -> {
+                    existing.setFranchiseName(franchiseModel.getFranchiseName());
+                    return franchisePersistencePort.saveFranchise(existing);
+                })
+                .doOnSuccess(saved ->
+                        log.info("Franquicia '{}' actualizada con ID {}",
+                                saved.getFranchiseName(), saved.getFranchiseId())
+                )
+                .doOnError(BusinessException.class, ex ->
+                        log.warn("No se pudo actualizar la franquicia '{}': {}",
+                                franchiseModel.getFranchiseName(), ex.getMessage())
                 );
     }
 

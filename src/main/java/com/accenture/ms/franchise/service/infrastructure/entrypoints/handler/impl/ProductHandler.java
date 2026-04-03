@@ -22,7 +22,7 @@ public class ProductHandler implements IProductHandler {
     private final IFranchiseServicePort franchiseServicePort;
     private final ProductRequestMapper productRequestMapper;
     private final ProductResponseMapper productResponseMapper;
-    private final ProductRequestUpdateMapper productRequestUpdateMapper;
+    private final UpdateProductRequestMapper updateProductRequestMapper;
 
     @Override
     public Mono<ProductResponseDTO> saveProduct(ProductRequestDTO productRequestDTO) {
@@ -42,7 +42,7 @@ public class ProductHandler implements IProductHandler {
     @Override
     public Mono<ProductResponseDTO> updateStockProduct(ProductRequestUpdateDTO productRequestUpdateDTO) {
         return Mono.just(productRequestUpdateDTO)
-                .map(productRequestUpdateMapper::toModel)
+                .map(updateProductRequestMapper::toModel)
                 .flatMap(franchiseServicePort::updateProduct)
                 .map(productResponseMapper::toResponse)
                 .onErrorMap(ex -> {

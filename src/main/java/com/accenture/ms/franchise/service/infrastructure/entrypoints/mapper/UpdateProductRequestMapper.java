@@ -5,7 +5,7 @@ import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProductRequestUpdateMapper {
+public class UpdateProductRequestMapper {
 
     public ProductModel toModel(ProductRequestUpdateDTO dto) {
         return ProductModel.builder()
