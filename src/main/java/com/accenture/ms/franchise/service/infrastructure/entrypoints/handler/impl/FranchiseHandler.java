@@ -6,13 +6,17 @@ import com.accenture.ms.franchise.service.domain.exceptions.BusinessException;
 import com.accenture.ms.franchise.service.domain.exceptions.TechnicalException;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.FranchiseRequestDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.FranchiseResponseDTO;
+import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.ProductBranchResponseDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.handler.IFranchiseHandler;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.mapper.FranchiseRequestMapper;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.mapper.FranchiseResponseMapper;
+import com.accenture.ms.franchise.service.infrastructure.entrypoints.mapper.ProductBranchResponseMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class FranchiseHandler implements IFranchiseHandler {
     private final IFranchiseServicePort franchiseServicePort;
     private final FranchiseRequestMapper franchiseRequestMapper;
     private final FranchiseResponseMapper franchiseResponseMapper;
+    private final ProductBranchResponseMapper productBranchResponseMapper;
 
     @Override
     public Mono<FranchiseResponseDTO> saveFranchise(FranchiseRequestDTO franchiseRequestDTO) {
@@ -34,6 +39,20 @@ public class FranchiseHandler implements IFranchiseHandler {
                     if (ex instanceof BusinessException) {
                         return ex;
                     }
+                    return new TechnicalException(ex, TechnicalMessage.INTERNAL_ERROR);
+                });
+    }
+
+    @Override
+    public Mono<List<ProductBranchResponseDTO>> getTopStockProducts(String franchiseId) {
+        return franchiseServicePort.getTopStockProducts(franchiseId)
+                .map(list -> list.stream()
+                        .map(productBranchResponseMapper::toResponse)
+                        .toList()
+                )
+                .onErrorMap(ex -> {
+                    log.error("Error al obtener productos con mayor stock", ex);
+                    if (ex instanceof BusinessException) return ex;
                     return new TechnicalException(ex, TechnicalMessage.INTERNAL_ERROR);
                 });
     }

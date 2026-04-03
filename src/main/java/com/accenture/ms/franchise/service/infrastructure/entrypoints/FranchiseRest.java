@@ -2,6 +2,7 @@ package com.accenture.ms.franchise.service.infrastructure.entrypoints;
 
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.FranchiseRequestDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.FranchiseResponseDTO;
+import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.ProductBranchResponseDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.handler.IFranchiseHandler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,14 +12,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/franchises")
+@RequestMapping("/api/v1/franchise")
 @RequiredArgsConstructor
 public class FranchiseRest {
 
@@ -34,5 +34,17 @@ public class FranchiseRest {
             @Valid @RequestBody FranchiseRequestDTO franchiseRequestDTO) {
         return franchiseHandler.saveFranchise(franchiseRequestDTO)
                 .map(dto -> ResponseEntity.status(HttpStatus.CREATED).body(dto));
+    }
+
+    @Operation(summary = "Get product with highest stock per branch for a franchise")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of products with highest stock per branch", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Franchise not found", content = @Content)
+    })
+    @GetMapping("/{franchiseId}/top-stock")
+    public Mono<ResponseEntity<List<ProductBranchResponseDTO>>> getTopStockProducts(
+            @PathVariable String franchiseId) {
+        return franchiseHandler.getTopStockProducts(franchiseId)
+                .map(ResponseEntity::ok);
     }
 }
