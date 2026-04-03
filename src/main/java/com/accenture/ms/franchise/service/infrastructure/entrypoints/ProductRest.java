@@ -2,6 +2,7 @@ package com.accenture.ms.franchise.service.infrastructure.entrypoints;
 
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.ProductRequestDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.ProductRequestUpdateDTO;
+import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.ProductRequestUpdateNameDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.ProductResponseDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.handler.IProductHandler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,5 +59,18 @@ public class ProductRest {
                                                     @PathVariable String branchId) {
         return productHandler.deleteProduct(productId, branchId)
                 .then(Mono.just(ResponseEntity.noContent().build()));
+    }
+
+    @Operation(summary = "Update a Product pf stock")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Product update", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Branch not found", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Product already exists", content = @Content)
+    })
+    @PutMapping("/name")
+    public Mono<ResponseEntity<ProductResponseDTO>> updateProductName(
+            @Valid @RequestBody ProductRequestUpdateNameDTO productRequestUpdateNameDTO) {
+        return productHandler.updateProductName(productRequestUpdateNameDTO)
+                .map(dto -> ResponseEntity.status(HttpStatus.OK).body(dto));
     }
 }

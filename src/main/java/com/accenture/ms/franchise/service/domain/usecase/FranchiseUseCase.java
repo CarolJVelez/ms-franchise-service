@@ -108,7 +108,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
 
     //Actualizar producto
     @Override
-    public Mono<ProductModel> updateProduct(ProductModel productModel) {
+    public Mono<ProductModel> updateProductStock(ProductModel productModel) {
         return validator.validateAndGetFranchiseByBranch(productModel.getBranchId())
                 .flatMap(franchise -> {
 
@@ -247,6 +247,37 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                 .doOnError(BusinessException.class, ex ->
                         log.warn("No se pudo actualizar la sucursal '{}': {}",
                                 branchModel.getBranchName(), ex.getMessage())
+                );
+    }
+
+    @Override
+    public Mono<ProductModel> updateProductName(ProductModel productModel) {
+        return validator.validateAndGetFranchiseByBranch(productModel.getBranchId())
+                .flatMap(franchise -> {
+
+                    BranchModel branch = validator.getBranchOrThrow(
+                            franchise, productModel.getBranchId());
+
+                    List<ProductModel> products = getProducts(branch);
+
+                    ProductModel existingProduct = validator.getProductOrThrow(
+                            products, productModel.getProductId());
+
+                    existingProduct.setProductName(productModel.getProductName());
+                    existingProduct.setBranchId(productModel.getBranchId());
+
+                    branch.setProductModels(products);
+
+                    return franchisePersistencePort.saveFranchise(franchise)
+                            .thenReturn(existingProduct);
+                })
+                .doOnSuccess(saved ->
+                        log.info("El nombre del Producto '{}' con ID {} actualizado",
+                                saved.getProductName(), saved.getProductId())
+                )
+                .doOnError(BusinessException.class, ex ->
+                        log.warn("No se pudo actualizar el nombre del producto '{}': {}",
+                                productModel.getProductName(), ex.getMessage())
                 );
     }
 
