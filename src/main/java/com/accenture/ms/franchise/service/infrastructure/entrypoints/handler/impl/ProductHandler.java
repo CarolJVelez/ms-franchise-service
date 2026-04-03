@@ -6,6 +6,7 @@ import com.accenture.ms.franchise.service.domain.exceptions.BusinessException;
 import com.accenture.ms.franchise.service.domain.exceptions.TechnicalException;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.ProductRequestDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.ProductRequestUpdateDTO;
+import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.ProductRequestUpdateNameDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.ProductResponseDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.handler.IProductHandler;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.mapper.*;
@@ -43,7 +44,7 @@ public class ProductHandler implements IProductHandler {
     public Mono<ProductResponseDTO> updateStockProduct(ProductRequestUpdateDTO productRequestUpdateDTO) {
         return Mono.just(productRequestUpdateDTO)
                 .map(updateProductRequestMapper::toModel)
-                .flatMap(franchiseServicePort::updateProduct)
+                .flatMap(franchiseServicePort::updateProductStock)
                 .map(productResponseMapper::toResponse)
                 .onErrorMap(ex -> {
                     log.error("Error al actualizar el producto", ex);
@@ -60,6 +61,21 @@ public class ProductHandler implements IProductHandler {
                 .onErrorMap(ex -> {
                     log.error("Error al eliminar el producto", ex);
                     if (ex instanceof BusinessException) return ex;
+                    return new TechnicalException(ex, TechnicalMessage.INTERNAL_ERROR);
+                });
+    }
+
+    @Override
+    public Mono<ProductResponseDTO> updateProductName(ProductRequestUpdateNameDTO productRequestUpdateNameDTO) {
+        return Mono.just(productRequestUpdateNameDTO)
+                .map(updateProductRequestMapper::toModelName)
+                .flatMap(franchiseServicePort::updateProductName)
+                .map(productResponseMapper::toResponse)
+                .onErrorMap(ex -> {
+                    log.error("Error al actualizar el nombre del producto", ex);
+                    if(ex instanceof BusinessException){
+                        return ex;
+                    }
                     return new TechnicalException(ex, TechnicalMessage.INTERNAL_ERROR);
                 });
     }

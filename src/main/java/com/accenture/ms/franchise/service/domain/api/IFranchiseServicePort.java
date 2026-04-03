@@ -12,9 +12,10 @@ public interface IFranchiseServicePort {
     Mono<FranchiseModel> saveFranchise(FranchiseModel franchiseModel);
     Mono<BranchModel> saveBranch(BranchModel branchModel);
     Mono<ProductModel> saveProduct(ProductModel productModel);
-    Mono<ProductModel> updateProduct(ProductModel productModel);
+    Mono<ProductModel> updateProductStock(ProductModel productModel);
     Mono<List<ProductBranchModel>> getTopStockProducts(String franchiseId);
     Mono<Void> deleteProduct(String productId, String branchId);
     Mono<FranchiseModel> updateFranchise(FranchiseModel franchiseModel);
     Mono<BranchModel> updateBranch(BranchModel branchModel);
+    Mono<ProductModel> updateProductName(ProductModel productModel);
 }
