@@ -53,9 +53,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                 )
                 .flatMap(franchise -> {
 
-                    List<BranchModel> branches = franchise.getBranchModels() == null
-                            ? new ArrayList<>()
-                            : new ArrayList<>(franchise.getBranchModels());
+                    List<BranchModel> branches = getBranches(franchise);
 
                     validator.validateBranchNotExists(branches, branchModel);
 
@@ -140,6 +138,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                 );
     }
 
+    //Obtener productos por mayor stock
     @Override
     public Mono<List<ProductBranchModel>> getTopStockProducts(String franchiseId) {
         return validator.validateAndGetFranchise(franchiseId)
@@ -177,6 +176,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                 );
     }
 
+    //Eliminar producto
     @Override
     public Mono<Void> deleteProduct(String productId, String branchId) {
         return validator.validateAndGetFranchiseByBranch(branchId)
@@ -203,6 +203,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                 );
     }
 
+    //Actualizar franquicia
     @Override
     public Mono<FranchiseModel> updateFranchise(FranchiseModel franchiseModel) {
         return validator.validateFranchiseNameNotExists(franchiseModel.getFranchiseName())
@@ -221,10 +222,47 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                 );
     }
 
+    //Actualizar sucursal
+    @Override
+    public Mono<BranchModel> updateBranch(BranchModel branchModel) {
+        return validator.validateAndGetFranchiseByBranch(branchModel.getBranchId())
+                .flatMap(franchise -> {
+
+                    BranchModel branch = validator.getBranchOrThrow(franchise, branchModel.getBranchId());
+
+                    List<BranchModel> branches = getBranches(franchise);
+
+                    validator.validateBranchNotExists(branches, branchModel);
+
+                    branch.setBranchName(branchModel.getBranchName());
+                    branch.setFranchiseId(franchise.getFranchiseId());
+
+                    return franchisePersistencePort.saveFranchise(franchise)
+                            .thenReturn(branch);
+                })
+                .doOnSuccess(saved ->
+                        log.info("Sucursal '{}' con ID {} actualizada",
+                                saved.getBranchName(), saved.getBranchId())
+                )
+                .doOnError(BusinessException.class, ex ->
+                        log.warn("No se pudo actualizar la sucursal '{}': {}",
+                                branchModel.getBranchName(), ex.getMessage())
+                );
+    }
+
+    //Obtener productos
     private List<ProductModel> getProducts(BranchModel branch) {
         if (branch.getProductModels() == null) {
             branch.setProductModels(new ArrayList<>());
         }
         return branch.getProductModels();
+    }
+
+    //Obtener sucursales
+    private List<BranchModel> getBranches(FranchiseModel franchiseModel) {
+        if (franchiseModel.getBranchModels() == null) {
+            franchiseModel.setBranchModels(new ArrayList<>());
+        }
+        return franchiseModel.getBranchModels();
     }
 }

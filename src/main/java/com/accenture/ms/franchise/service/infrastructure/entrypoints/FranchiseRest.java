@@ -59,6 +59,7 @@ public class FranchiseRest {
     public Mono<ResponseEntity<FranchiseResponseDTO>> updateFranchiseName(
             @Valid @RequestBody FranchiseUpdateRequestDTO franchiseUpdateRequestDTO) {
         return franchiseHandler.updateFranchiseName(franchiseUpdateRequestDTO)
-                .map(dto -> ResponseEntity.status(HttpStatus.OK).body(dto));
+                .map(dto -> ResponseEntity.status(HttpStatus.OK).body(dto))
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }

@@ -1,6 +1,7 @@
 package com.accenture.ms.franchise.service.infrastructure.entrypoints;
 
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.BranchRequestDTO;
+import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.BranchUpdateRequestDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.BranchResponseDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.handler.IBranchHandler;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,10 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -35,5 +33,19 @@ public class BranchesRest {
             @Valid @RequestBody BranchRequestDTO branchRequestDTO) {
         return branchHandler.saveBranch(branchRequestDTO)
                 .map(dto -> ResponseEntity.status(HttpStatus.CREATED).body(dto));
+    }
+
+    @Operation(summary = "Update the name of a branch")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Branch updated", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Branch not found", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Branch name already exists", content = @Content)
+    })
+    @PutMapping
+    public Mono<ResponseEntity<BranchResponseDTO>> updateBranchName(
+            @Valid @RequestBody BranchUpdateRequestDTO branchUpdateRequestDTO) {
+        return branchHandler.updateBranchName(branchUpdateRequestDTO)
+                .map(dto -> ResponseEntity.status(HttpStatus.OK).body(dto))
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 }
