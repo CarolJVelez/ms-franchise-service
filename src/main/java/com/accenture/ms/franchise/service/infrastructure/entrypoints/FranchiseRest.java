@@ -1,6 +1,7 @@
 package com.accenture.ms.franchise.service.infrastructure.entrypoints;
 
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.FranchiseRequestDTO;
+import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.request.FranchiseUpdateRequestDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.FranchiseResponseDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.ProductBranchResponseDTO;
 import com.accenture.ms.franchise.service.infrastructure.entrypoints.handler.IFranchiseHandler;
@@ -46,5 +47,18 @@ public class FranchiseRest {
             @PathVariable String franchiseId) {
         return franchiseHandler.getTopStockProducts(franchiseId)
                 .map(ResponseEntity::ok);
+    }
+
+    @Operation(summary = "Update the name of a franchise")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Franchise updated", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Franchise not found", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Franchise name already exists", content = @Content)
+    })
+    @PutMapping
+    public Mono<ResponseEntity<FranchiseResponseDTO>> updateFranchiseName(
+            @Valid @RequestBody FranchiseUpdateRequestDTO franchiseUpdateRequestDTO) {
+        return franchiseHandler.updateFranchiseName(franchiseUpdateRequestDTO)
+                .map(dto -> ResponseEntity.status(HttpStatus.OK).body(dto));
     }
 }
