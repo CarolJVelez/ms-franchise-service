@@ -8,7 +8,6 @@ import com.accenture.ms.franchise.service.domain.model.ProductBranchModel;
 import com.accenture.ms.franchise.service.domain.model.ProductModel;
 import com.accenture.ms.franchise.service.domain.spi.IFranchisePersistencePort;
 import com.accenture.ms.franchise.service.domain.validation.FranchiseValidator;
-import com.accenture.ms.franchise.service.infrastructure.entrypoints.dto.response.ProductBranchResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
@@ -179,6 +178,32 @@ public class FranchiseUseCase implements IFranchiseServicePort {
     }
 
     @Override
+    public Mono<Void> deleteProduct(String productId, String branchId) {
+        return validator.validateAndGetFranchiseByBranch(branchId)
+                .flatMap(franchise -> {
+                    BranchModel branch = validator.getBranchOrThrow(
+                            franchise, branchId);
+                    List<ProductModel> products = getProducts(branch);
+
+                    ProductModel existingProduct = validator.getProductOrThrow(
+                            products, productId);
+
+                    products.remove(existingProduct);
+
+                    return franchisePersistencePort.saveFranchise(franchise)
+                            .then();
+                })
+                .doOnSuccess(unused ->
+                        log.info("Producto con ID '{}' eliminado de la sucursal '{}'",
+                                productId, branchId)
+                )
+                .doOnError(BusinessException.class, ex ->
+                        log.warn("No se pudo eliminar el producto '{}' de la sucursal '{}': {}",
+                                productId, branchId, ex.getMessage())
+                );
+    }
+
+    @Override
     public Mono<FranchiseModel> updateFranchise(FranchiseModel franchiseModel) {
         return validator.validateFranchiseNameNotExists(franchiseModel.getFranchiseName())
                 .then(validator.validateAndGetFranchise(franchiseModel.getFranchiseId()))
@@ -197,8 +222,9 @@ public class FranchiseUseCase implements IFranchiseServicePort {
     }
 
     private List<ProductModel> getProducts(BranchModel branch) {
-        return branch.getProductModels() == null
-                ? new ArrayList<>()
-                : new ArrayList<>(branch.getProductModels());
+        if (branch.getProductModels() == null) {
+            branch.setProductModels(new ArrayList<>());
+        }
+        return branch.getProductModels();
     }
 }

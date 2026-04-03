@@ -53,4 +53,15 @@ public class ProductHandler implements IProductHandler {
                     return new TechnicalException(ex, TechnicalMessage.INTERNAL_ERROR);
                 });
     }
+
+    @Override
+    public Mono<Void> deleteProduct(String productId, String branchId) {
+        return franchiseServicePort.deleteProduct(productId, branchId)
+                .onErrorMap(ex -> {
+                    log.error("Error al eliminar el producto", ex);
+                    if (ex instanceof BusinessException) return ex;
+                    return new TechnicalException(ex, TechnicalMessage.INTERNAL_ERROR);
+                });
+    }
+
 }

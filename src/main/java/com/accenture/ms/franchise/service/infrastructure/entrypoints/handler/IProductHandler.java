@@ -8,4 +8,5 @@ import reactor.core.publisher.Mono;
 public interface IProductHandler {
     Mono<ProductResponseDTO> saveProduct(ProductRequestDTO productRequestDTO);
     Mono<ProductResponseDTO> updateStockProduct(ProductRequestUpdateDTO productRequestUpdateDTO);
+    Mono<Void> deleteProduct(String productId, String branchId);
 }
