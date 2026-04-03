@@ -11,6 +11,5 @@ import java.util.List;
 public interface IFranchiseHandler {
     Mono<FranchiseResponseDTO> saveFranchise(FranchiseRequestDTO franchiseRequestDTO);
     Mono<List<ProductBranchResponseDTO>> getTopStockProducts(String franchiseId);
-
     Mono<FranchiseResponseDTO> updateFranchiseName(FranchiseUpdateRequestDTO franchiseUpdateRequestDTO);
 }

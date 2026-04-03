@@ -212,7 +212,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
                     return franchisePersistencePort.saveFranchise(existing);
                 })
                 .doOnSuccess(saved ->
-                        log.info("Franquicia '{}' actualizada con ID {}",
+                        log.info("Franquicia '{}' con ID {} actualizada",
                                 saved.getFranchiseName(), saved.getFranchiseId())
                 )
                 .doOnError(BusinessException.class, ex ->
