@@ -61,7 +61,7 @@ public class ProductRest {
                 .then(Mono.just(ResponseEntity.noContent().build()));
     }
 
-    @Operation(summary = "Update a Product pf stock")
+    @Operation(summary = "Update a Product of name")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product update", content = @Content),
             @ApiResponse(responseCode = "404", description = "Branch not found", content = @Content),
