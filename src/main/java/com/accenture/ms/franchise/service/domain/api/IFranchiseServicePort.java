@@ -16,4 +16,5 @@ public interface IFranchiseServicePort {
     Mono<List<ProductBranchModel>> getTopStockProducts(String franchiseId);
     Mono<Void> deleteProduct(String productId, String branchId);
     Mono<FranchiseModel> updateFranchise(FranchiseModel franchiseModel);
+    Mono<BranchModel> updateBranch(BranchModel branchModel);
 }

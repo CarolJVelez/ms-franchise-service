@@ -69,7 +69,7 @@ public class FranchiseValidator {
             throw new BusinessException(TechnicalMessage.PRODUCT_NAME_ALREADY_EXISTS);
         }
     }
-// obtener branch con la franquicia
+    // obtener branch con la franquicia
     public BranchModel getBranchOrThrow(FranchiseModel franchise, String branchId) {
         return franchise.getBranchModels().stream()
                 .filter(b -> b.getBranchId().equals(branchId))
