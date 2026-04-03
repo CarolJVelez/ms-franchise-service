@@ -10,7 +10,6 @@ public class ProductRequestUpdateMapper {
     public ProductModel toModel(ProductRequestUpdateDTO dto) {
         return ProductModel.builder()
                 .productId(dto.productId())
-                .productName(dto.productName())
                 .branchId(dto.branchId())
                 .stock(dto.stock())
                 .build();
