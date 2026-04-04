@@ -32,7 +32,7 @@ public class FranchiseUseCase implements IFranchiseServicePort {
         return franchiseModel.validateBusinessRules()
                 .flatMap(model ->
                         validator.validateFranchiseNameNotExists(model.getFranchiseName())
-                                .then(franchisePersistencePort.saveFranchise(model))
+                                .then(Mono.defer(() -> franchisePersistencePort.saveFranchise(model)))
                 )
                 .doOnSuccess(saved ->
                         log.info("Franquicia '{}' creada con ID {}",
