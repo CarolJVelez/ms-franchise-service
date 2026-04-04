@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb-franchise
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: franchise_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  ms-franchise:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ms-franchise:latest
+    container_name: ms-franchise
+    depends_on:
+      - mongodb
+    ports:
+      - "8086:8086"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/franchise_db
+
+volumes:
+  mongodb_data:
