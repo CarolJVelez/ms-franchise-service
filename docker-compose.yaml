@@ -13,6 +13,9 @@ services:
       - mongodb_data:/data/db
 
   ms-franchise:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: ms-franchise:latest
     container_name: ms-franchise
     depends_on:

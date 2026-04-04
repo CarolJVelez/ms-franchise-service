@@ -21,6 +21,7 @@ COPY . .
 # Build
 RUN ./gradlew clean bootJar --no-daemon
 
+USER appuser
 # ========== FASE 2: RUNTIME ==========
 FROM eclipse-temurin:17-jre-alpine
 
